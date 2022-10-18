@@ -8,7 +8,7 @@ from datetime import datetime
 #Personal google API key (Replace with own API key)
 key=''
 
-
+#List of Singapore towns
 singapore_towns = ['Ang_Mo_Kio'
 ,'Bedok'
 ,'Bishan'
