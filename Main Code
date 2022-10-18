@@ -1,0 +1,111 @@
+import pandas as pd
+import numpy as np
+import requests
+import json
+import time
+from datetime import datetime
+
+#Personal google API key (Replace with own API key)
+key=''
+
+
+singapore_towns = ['Ang_Mo_Kio'
+,'Bedok'
+,'Bishan'
+,'Boon_Lay'
+,'Bukit_Batok'
+,'Bukit_Merah'
+,'Bukit_Panjang'
+,'Bukit_Timah'
+,'Central_Water_Catchment'
+,'Changi'
+,'Changi_Bay'
+,'Choa_Chu_Kang'
+,'Clementi'
+,'Downtown_Core'
+,'Geylang'
+,'Hougang'
+,'Jurong_East'
+,'Jurong_West'
+,'Kallang'
+,'Lim Chu_Kang'
+,'Mandai'
+,'Marina_East'
+,'Marina_South'
+,'Marine_Parade'
+,'Newton'
+,'North-Eastern_Islands'
+,'Novena'
+,'Orchard'
+,'Outram'
+,'Pasir_Ris'
+,'Paya_Lebar'
+,'Pioneer'
+,'Punggol'
+,'Queenstown'
+,'River_Valley'
+,'Rochor'
+,'Seletar'
+,'Sembawang'
+,'Sengkang'
+,'Serangoon'
+,'Simpang'
+,'Singapore_River'
+,'Southern_Islands'
+,'Straits_View'
+,'Sungei_Kadut'
+,'Tampines'
+,'Tanglin'
+,'Tengah'
+,'Toa_Payoh'
+,'Tuas'
+,'Western_Islands'
+,'Western_Water_Catchment'
+,'Woodlands'
+,'Yishun']
+
+# API call
+def callAPI(next_page_token,inp):
+    url='https://maps.googleapis.com/maps/api/place/textsearch/json?query={}&key={}'.format(str('Neighbourhood+hardware+shops+in+'+inp),key)
+    print(url)
+    if next_page_token:
+        url+='&pagetoken={}'.format(next_page_token)
+    r=requests.get(url)
+    return r.json()
+
+
+
+# get the data
+def getData(inp):
+    df=pd.DataFrame()
+    next_page_token=None
+    for i in range(0,10):
+        print ('page {}'.format(i))
+        try:
+            data=callAPI(next_page_token,inp)
+            next_page_token=data['next_page_token']
+            time.sleep(2)
+        except:
+            continue
+        for row in data['results']:
+            df1 = pd.DataFrame({'name':row['name'],'address':row['formatted_address'], 'Rating':row['rating']},index=[0])
+            df=df.append(df1,ignore_index=True)
+    return df
+
+def getDF(df):
+    df=df.drop_duplicates(subset=['address'])
+    return df
+dftotal = pd.DataFrame()
+# get the data
+for inp in singapore_towns:
+    print(inp)
+    df=getData(inp)
+    df=getDF(df)
+    dftotal = pd.concat([dftotal, df])
+    print(dftotal)
+
+
+
+# get the dataframe
+dftotal = getDF(dftotal)
+dftotal
